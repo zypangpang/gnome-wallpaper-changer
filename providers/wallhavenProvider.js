@@ -8,6 +8,10 @@ const Self = imports.misc.extensionUtils.getCurrentExtension();
 const Utils = Self.imports.utils;
 const WallpaperProvider = Self.imports.wallpaperProvider;
 
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min) ) + min;
+}
+
 const OPTIONS = {
   query: "",
   categories: '100',
@@ -24,7 +28,8 @@ const OPTIONS = {
       + "&ratios=" + this.ratio
       + "&sorting=" + this.sorting
       + "&order=" + this.order
-      + "&q=" + this.query;
+      + "&q=" + this.query
+	  + "&seed=1" + getRndInteger(1,5000);
   }
 }
 
@@ -149,8 +154,9 @@ const Provider = new Lang.Class({
   },
 
   _downloadPage: function (page, callback, no_match_callback) {
-    const request = this.session.request_http('GET',
-      'https://wallhaven.cc/search?' + OPTIONS.toParameterString() + '&page=' + page);
+	const url='https://wallhaven.cc/search?' + OPTIONS.toParameterString() + '&page=' + page;
+    global.log('_downloadPage url: ' + url);
+    const request = this.session.request_http('GET',url);
     const message = request.get_message();
     this.session.queue_message(message, Lang.bind(this, function (session, message) {
       if (message.status_code != Soup.KnownStatusCode.OK) {
